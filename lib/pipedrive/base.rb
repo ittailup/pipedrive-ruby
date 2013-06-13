@@ -68,7 +68,8 @@ module Pipedrive
       end
 
       def new_list( attrs )
-        attrs['data'].is_a?(Array) ? attrs['data'].map {|data| self.new( 'data' => data ) } : []
+        #attrs['data'].is_a?(Array) ? attrs['data'].map {|data| self.new( 'data' => data ) } : []
+	       attrs
       end
 
       def all(response = nil)
@@ -90,9 +91,14 @@ module Pipedrive
         end
       end
 
+      def list( opts = {} )
+        res = get "#{resource_path}", :query => opts
+        res.ok? ? new_list(res) : bad_response(res)
+      end
+
       def find(id)
         res = get "#{resource_path}/#{id}"
-        res.ok? ? new(res) : bad_response(res)
+        res.ok? ? new_list(res) : bad_response(res)
       end
 
       def find_by_name(name, opts={})
@@ -103,6 +109,12 @@ module Pipedrive
       def resource_path
         "/#{name.split('::').last.downcase}s"
       end
+
+      def organizationFields(id)
+	    res = get "/organizationFields/#{id}"
+	    res.ok? ? new_list(res) : bad_response(res)
+      end
+
     end
 
     # TODO Rewrite this.
